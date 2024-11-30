@@ -22,7 +22,7 @@ export default function PricingPage() {
         >
           <h1 className="text-5xl font-bold gradient-text mb-6">Pricing Plans</h1>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Choose the perfect plan for your needs. From individual developers to enterprise teams, we have you covered.
+            Choose the perfect plan for you. From individual developers to enterprise teams, we have you covered.
           </p>
         </motion.div>
         <Pricing />

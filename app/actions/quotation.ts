@@ -11,6 +11,7 @@ export type QuotationServiceInput = {
 
 export type QuotationInput = {
   clientId: string;
+  status: string;
   services: QuotationServiceInput[];
 };
 
@@ -22,6 +23,7 @@ export async function createQuotation(data: QuotationInput) {
   await prisma.quotation.create({
     data: {
       clientId: data.clientId,
+      status: data.status,
       total,
       services: {
         create: data.services.map((service) => ({
@@ -50,6 +52,7 @@ export async function updateQuotation(id: string, data: QuotationInput) {
     where: { id },
     data: {
       clientId: data.clientId,
+      status: data.status,
       total,
       services: {
         create: data.services.map((service) => ({
@@ -66,14 +69,6 @@ export async function updateQuotation(id: string, data: QuotationInput) {
 export async function deleteQuotation(id: string) {
   await prisma.quotation.delete({
     where: { id },
-  });
-  revalidatePath("/dashboard/quotations");
-}
-
-export async function updateQuotationStatus(id: string, status: string) {
-  await prisma.quotation.update({
-    where: { id },
-    data: { status },
   });
   revalidatePath("/dashboard/quotations");
 }

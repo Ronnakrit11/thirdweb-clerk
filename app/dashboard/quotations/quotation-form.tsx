@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useTransition } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
+import { useTransition } from 'react';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -12,21 +12,22 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from '@/components/ui/form';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import { createQuotation, updateQuotation } from "@/app/actions/quotation";
-import { Plus, Trash } from "lucide-react";
-import type { Client, Quotation, QuotationService, Service } from "@prisma/client";
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { createQuotation, updateQuotation } from '@/app/actions/quotation';
+import { Plus, Trash } from 'lucide-react';
+import type { Client, Quotation, QuotationService, Service } from '@prisma/client';
 
 const formSchema = z.object({
   clientId: z.string().min(1, "Please select a client"),
+  status: z.string().min(1, "Please select a status"),
   services: z.array(z.object({
     serviceId: z.string().min(1, "Please select a service"),
     quantity: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
@@ -42,6 +43,12 @@ type QuotationWithRelations = Quotation & {
     service: Service;
   })[];
 };
+
+const statuses = [
+  { value: "PENDING", label: "Pending" },
+  { value: "APPROVED", label: "Approved" },
+  { value: "REJECTED", label: "Rejected" },
+];
 
 export function QuotationForm({ 
   quotation,
@@ -61,6 +68,7 @@ export function QuotationForm({
     defaultValues: quotation
       ? {
           clientId: quotation.clientId,
+          status: quotation.status,
           services: quotation.services.map((qs) => ({
             serviceId: qs.serviceId,
             quantity: qs.quantity.toString(),
@@ -68,6 +76,7 @@ export function QuotationForm({
         }
       : {
           clientId: "",
+          status: "PENDING",
           services: [{ serviceId: "", quantity: "1" }],
         },
   });
@@ -91,11 +100,13 @@ export function QuotationForm({
       if (quotation) {
         await updateQuotation(quotation.id, {
           clientId: data.clientId,
+          status: data.status,
           services: quotationServices,
         });
       } else {
         await createQuotation({
           clientId: data.clientId,
+          status: data.status,
           services: quotationServices,
         });
       }
@@ -125,6 +136,34 @@ export function QuotationForm({
                   {clients.map((client) => (
                     <SelectItem key={client.id} value={client.id}>
                       {client.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="status"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Status</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a status" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {statuses.map((status) => (
+                    <SelectItem key={status.value} value={status.value}>
+                      {status.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

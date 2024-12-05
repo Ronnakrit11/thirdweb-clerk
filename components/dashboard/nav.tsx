@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { UserButton } from "@clerk/nextjs";
 
 const routes = [
@@ -18,6 +17,10 @@ const routes = [
   {
     href: "/dashboard/quotations",
     label: "Quotations",
+  },
+  {
+    href: "/dashboard/invoices",
+    label: "Invoices",
   },
 ];
 

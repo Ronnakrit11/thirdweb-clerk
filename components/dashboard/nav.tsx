@@ -22,6 +22,10 @@ const routes = [
     href: "/dashboard/invoices",
     label: "Invoices",
   },
+  {
+    href: "/dashboard/ai",
+    label: "Ai-Feature",
+  },
 ];
 
 export function DashboardNav() {

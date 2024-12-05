@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { NavLinks } from "./nav-links";
@@ -32,6 +32,9 @@ export function MobileSidebar() {
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="w-72">
+        <SheetHeader>
+          <SheetTitle>Dashboard Menu</SheetTitle>
+        </SheetHeader>
         <ScrollArea className="h-full">
           <div className="flex items-center gap-2 p-4">
             <UserButton afterSignOutUrl="/" />

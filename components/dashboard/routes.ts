@@ -15,4 +15,8 @@ export const dashboardRoutes = [
       href: "/dashboard/invoices",
       label: "Invoices",
     },
+    {
+      href: "/dashboard/aifeatures",
+      label: "Ai-features",
+    },
   ] as const;

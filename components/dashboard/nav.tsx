@@ -23,8 +23,8 @@ const routes = [
     label: "Invoices",
   },
   {
-    href: "/dashboard/ai",
-    label: "Ai-Feature",
+    href: "/dashboard/aifeatures",
+    label: "Ai-features",
   },
 ];
 

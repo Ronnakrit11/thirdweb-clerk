@@ -11,8 +11,8 @@ interface CustomerListWrapperProps {
 export function CustomerListWrapper({ customers }: CustomerListWrapperProps) {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>();
 
-  const handleSelectCustomer = (customerId: string) => {
-    setSelectedCustomerId(customerId);
+  const handleSelectCustomer = (customer: Client) => {
+    setSelectedCustomerId(customer.id);
     // TODO: Update chat context/state with selected customer
   };
 

@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "webhook": "ngrok http 3000"
   },
   "dependencies": {
     "@clerk/nextjs": "^4.29.9",
@@ -72,6 +73,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "ngrok": "^5.0.0",
     "prisma": "6.0.1"
   }
 }

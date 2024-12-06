@@ -1,10 +1,10 @@
 import { authMiddleware } from "@clerk/nextjs";
  
 export default authMiddleware({
-  publicRoutes: ["/", "/pricing"],
-  ignoredRoutes: ["/api/webhook"],
+  publicRoutes: ["/", "/pricing", "/api/line-webhook"],
+  ignoredRoutes: ["/api/webhook", "/api/line-webhook"],
   beforeAuth: (req) => {
-    // Handle preflight requestsk
+    // Handle preflight requests
     if (req.method === "OPTIONS") {
       return new Response(null, { status: 204 });
     }

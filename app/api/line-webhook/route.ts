@@ -1,12 +1,33 @@
 import { NextResponse } from "next/server";
 import { WebhookEvent } from "@line/bot-sdk";
-import prisma from "@/lib/db";
-import { lineClient } from "@/lib/line";
+import { headers } from "next/headers";
+import crypto from "crypto";
 
 export async function POST(req: Request) {
   try {
-    const events: WebhookEvent[] = await req.json();
+    // Get the raw body as text
+    const body = await req.text();
+    const headersList = headers();
+    const signature = headersList.get("x-line-signature");
 
+    // Verify webhook signature
+    if (!signature) {
+      return new NextResponse("Missing signature", { status: 401 });
+    }
+
+    const channelSecret = process.env.LINE_CHANNEL_SECRET!;
+    const hash = crypto
+      .createHmac("SHA256", channelSecret)
+      .update(body)
+      .digest("base64");
+
+    if (signature !== hash) {
+      return new NextResponse("Invalid signature", { status: 401 });
+    }
+
+    const events: WebhookEvent[] = JSON.parse(body);
+
+    // Process each event
     for (const event of events) {
       if (event.type === "message" && event.message.type === "text") {
         const lineUserId = event.source.userId;
@@ -18,13 +39,10 @@ export async function POST(req: Request) {
         });
 
         if (!client) {
-          // Get user profile from Line
-          const profile = await lineClient.getProfile(lineUserId);
-          
           client = await prisma.client.create({
             data: {
               lineUserId,
-              name: profile.displayName,
+              name: `LINE User ${lineUserId.slice(-6)}`,
               email: `${lineUserId}@line.user`,
               phone: "",
               address: "",
@@ -51,4 +69,9 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
+}
+
+// Verify webhook URL is working
+export async function GET() {
+  return new NextResponse("LINE Webhook Endpoint", { status: 200 });
 }

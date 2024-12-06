@@ -14,14 +14,14 @@ export async function POST(req: Request) {
     // Verify webhook signature
     if (!signature || !verifySignature(body, signature)) {
       console.error("Invalid signature");
-      return new NextResponse("Invalid signature", { status: 401 });
+      return NextResponse.json({ message: "Invalid signature" }, { status: 200 });
     }
 
     const events: WebhookEvent[] = JSON.parse(body);
 
     // Process each event
     for (const event of events) {
-      if (event.type === "message") {
+      if (event.type === "message" && event.message.type === "text") {
         const lineUserId = event.source.userId;
         if (!lineUserId) continue;
 
@@ -29,14 +29,16 @@ export async function POST(req: Request) {
       }
     }
 
-    return new NextResponse("OK", { status: 200 });
+    // Always return 200 to LINE platform
+    return NextResponse.json({ message: "OK" }, { status: 200 });
   } catch (error) {
     console.error("Error handling webhook:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    // Still return 200 to LINE platform even on error
+    return NextResponse.json({ message: "OK" }, { status: 200 });
   }
 }
 
 // Verify webhook URL is working
 export async function GET() {
-  return new NextResponse("LINE Webhook Endpoint", { status: 200 });
+  return NextResponse.json({ message: "LINE Webhook is ready" }, { status: 200 });
 }

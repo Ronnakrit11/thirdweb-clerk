@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { QuotationForm } from "./quotation-form";
 import { deleteQuotation } from "@/app/actions/quotation";
+import { DeleteAlert } from "@/components/shared/alert-dialog/delete-alert";
+import { useActionToast } from "@/hooks/use-action-toast";
 import type { Client, Quotation, QuotationService, Service } from "@prisma/client";
 
 type QuotationWithRelations = Quotation & {
@@ -30,12 +32,19 @@ export function QuotationActions({
 }) {
   const [open, setOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const { successToast, errorToast } = useActionToast();
 
   const handleDelete = async () => {
-    if (confirm("Are you sure you want to delete this quotation?")) {
+    try {
       setIsDeleting(true);
       await deleteQuotation(quotation.id);
+      successToast("Quotation deleted successfully");
+    } catch (error) {
+      errorToast("Failed to delete quotation");
+    } finally {
       setIsDeleting(false);
+      setShowDeleteAlert(false);
     }
   };
 
@@ -64,11 +73,19 @@ export function QuotationActions({
       <Button
         variant="destructive"
         size="icon"
-        onClick={handleDelete}
+        onClick={() => setShowDeleteAlert(true)}
         disabled={isDeleting}
       >
         <Trash className="h-4 w-4" />
       </Button>
+
+      <DeleteAlert
+        open={showDeleteAlert}
+        onOpenChange={setShowDeleteAlert}
+        onConfirm={handleDelete}
+        title="Delete Quotation"
+        description="Are you sure you want to delete this quotation? This action cannot be undone."
+      />
     </div>
   );
 }

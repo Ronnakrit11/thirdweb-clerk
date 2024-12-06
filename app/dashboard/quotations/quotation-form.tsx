@@ -24,6 +24,7 @@ import { Input } from '@/components/ui/input';
 import { createQuotation, updateQuotation } from '@/app/actions/quotation';
 import { Plus, Trash } from 'lucide-react';
 import type { Client, Quotation, QuotationService, Service } from '@prisma/client';
+import { useActionToast } from "@/hooks/use-action-toast";
 
 const formSchema = z.object({
   clientId: z.string().min(1, "Please select a client"),
@@ -62,6 +63,7 @@ export function QuotationForm({
   closeModal?: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
+  const { successToast, errorToast } = useActionToast();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -88,29 +90,35 @@ export function QuotationForm({
 
   function onSubmit(data: FormData) {
     startTransition(async () => {
-      const quotationServices = data.services.map((item) => {
-        const service = services.find((s) => s.id === item.serviceId)!;
-        return {
-          serviceId: item.serviceId,
-          quantity: Number(item.quantity),
-          price: service.price,
-        };
-      });
+      try {
+        const quotationServices = data.services.map((item) => {
+          const service = services.find((s) => s.id === item.serviceId)!;
+          return {
+            serviceId: item.serviceId,
+            quantity: Number(item.quantity),
+            price: service.price,
+          };
+        });
 
-      if (quotation) {
-        await updateQuotation(quotation.id, {
-          clientId: data.clientId,
-          status: data.status,
-          services: quotationServices,
-        });
-      } else {
-        await createQuotation({
-          clientId: data.clientId,
-          status: data.status,
-          services: quotationServices,
-        });
+        if (quotation) {
+          await updateQuotation(quotation.id, {
+            clientId: data.clientId,
+            status: data.status,
+            services: quotationServices,
+          });
+          successToast("Quotation updated successfully");
+        } else {
+          await createQuotation({
+            clientId: data.clientId,
+            status: data.status,
+            services: quotationServices,
+          });
+          successToast("Quotation created successfully");
+        }
+        closeModal?.();
+      } catch (error) {
+        errorToast(quotation ? "Failed to update quotation" : "Failed to create quotation");
       }
-      closeModal?.();
     });
   }
 

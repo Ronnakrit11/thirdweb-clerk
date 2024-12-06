@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { WebhookEvent } from "@line/bot-sdk";
 import prisma from "@/lib/db";
+import { lineClient } from "@/lib/line";
 
 export async function POST(req: Request) {
   try {
@@ -17,10 +18,13 @@ export async function POST(req: Request) {
         });
 
         if (!client) {
+          // Get user profile from Line
+          const profile = await lineClient.getProfile(lineUserId);
+          
           client = await prisma.client.create({
             data: {
               lineUserId,
-              name: `Line User ${lineUserId.slice(-6)}`,
+              name: profile.displayName,
               email: `${lineUserId}@line.user`,
               phone: "",
               address: "",

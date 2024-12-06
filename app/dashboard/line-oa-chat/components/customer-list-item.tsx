@@ -17,7 +17,7 @@ export function CustomerListItem({
     <button
       onClick={onClick}
       className={cn(
-        "w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors",
+        "w-full flex items-center gap-3 p-4 hover:bg-muted/50 transition-colors text-left",
         isSelected && "bg-muted"
       )}
     >
@@ -26,7 +26,7 @@ export function CustomerListItem({
           {customer.name.charAt(0).toUpperCase()}
         </AvatarFallback>
       </Avatar>
-      <div className="flex-1 text-left">
+      <div className="flex-1">
         <p className="font-medium">{customer.name}</p>
         <p className="text-sm text-muted-foreground">{customer.email}</p>
       </div>

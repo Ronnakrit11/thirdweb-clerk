@@ -44,6 +44,14 @@ export async function POST(req: Request) {
         clientId: client.id,
         isFromClient: false,
       },
+      include: {
+        client: {
+          select: {
+            lineUserId: true,
+            name: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json(chat);

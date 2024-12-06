@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createService, updateService } from "@/app/actions/service";
+import { useActionToast } from "@/hooks/use-action-toast";
 import type { Service } from "@prisma/client";
 
 const formSchema = z.object({
@@ -36,6 +37,7 @@ export function ServiceForm({
   closeModal?: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
+  const { successToast, errorToast } = useActionToast();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -54,18 +56,24 @@ export function ServiceForm({
 
   function onSubmit(data: FormData) {
     startTransition(async () => {
-      if (service) {
-        await updateService(service.id, {
-          ...data,
-          price: Number(data.price),
-        });
-      } else {
-        await createService({
-          ...data,
-          price: Number(data.price),
-        });
+      try {
+        if (service) {
+          await updateService(service.id, {
+            ...data,
+            price: Number(data.price),
+          });
+          successToast("Service updated successfully");
+        } else {
+          await createService({
+            ...data,
+            price: Number(data.price),
+          });
+          successToast("Service created successfully");
+        }
+        closeModal?.();
+      } catch (error) {
+        errorToast(service ? "Failed to update service" : "Failed to create service");
       }
-      closeModal?.();
     });
   }
 

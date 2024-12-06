@@ -11,17 +11,26 @@ import {
 } from "@/components/ui/dialog";
 import { ServiceForm } from "./service-form";
 import { deleteService } from "@/app/actions/service";
+import { DeleteAlert } from "@/components/shared/alert-dialog/delete-alert";
+import { useActionToast } from "@/hooks/use-action-toast";
 import type { Service } from "@prisma/client";
 
 export function ServiceActions({ service }: { service: Service }) {
   const [open, setOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const { successToast, errorToast } = useActionToast();
 
   const handleDelete = async () => {
-    if (confirm("Are you sure you want to delete this service?")) {
+    try {
       setIsDeleting(true);
       await deleteService(service.id);
+      successToast("Service deleted successfully");
+    } catch (error) {
+      errorToast("Failed to delete service");
+    } finally {
       setIsDeleting(false);
+      setShowDeleteAlert(false);
     }
   };
 
@@ -39,17 +48,28 @@ export function ServiceActions({ service }: { service: Service }) {
           <DialogHeader>
             <DialogTitle>Edit Service</DialogTitle>
           </DialogHeader>
-          <ServiceForm service={service} closeModal={() => setOpen(false)} />
+          <ServiceForm 
+            service={service} 
+            closeModal={() => setOpen(false)} 
+          />
         </DialogContent>
       </Dialog>
       <Button
         variant="destructive"
         size="icon"
-        onClick={handleDelete}
+        onClick={() => setShowDeleteAlert(true)}
         disabled={isDeleting}
       >
         <Trash className="h-4 w-4" />
       </Button>
+
+      <DeleteAlert
+        open={showDeleteAlert}
+        onOpenChange={setShowDeleteAlert}
+        onConfirm={handleDelete}
+        title="Delete Service"
+        description="Are you sure you want to delete this service? This action cannot be undone."
+      />
     </div>
   );
 }

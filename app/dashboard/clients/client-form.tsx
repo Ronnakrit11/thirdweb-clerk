@@ -14,7 +14,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { createClient , updateClient } from "@/app/actions/client";
+import { createClient, updateClient } from "@/app/actions/client";
+import { useActionToast } from "@/hooks/use-action-toast";
 import type { Client } from "@prisma/client";
 
 const formSchema = z.object({
@@ -34,6 +35,7 @@ export function ClientForm({
   closeModal?: () => void;
 }) {
   const [isPending, startTransition] = useTransition();
+  const { successToast, errorToast } = useActionToast();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -47,12 +49,18 @@ export function ClientForm({
 
   function onSubmit(data: FormData) {
     startTransition(async () => {
-      if (client) {
-        await updateClient(client.id, data);
-      } else {
-        await createClient(data);
+      try {
+        if (client) {
+          await updateClient(client.id, data);
+          successToast("Client updated successfully");
+        } else {
+          await createClient(data);
+          successToast("Client created successfully");
+        }
+        closeModal?.();
+      } catch (error) {
+        errorToast(client ? "Failed to update client" : "Failed to create client");
       }
-      closeModal?.();
     });
   }
 

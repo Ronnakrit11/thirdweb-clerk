@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { WebhookEvent } from "@line/bot-sdk";
-import { lineClient } from "@/lib/line";
 import prisma from "@/lib/db";
 
 export async function POST(req: Request) {
@@ -11,21 +10,31 @@ export async function POST(req: Request) {
       if (event.type === "message" && event.message.type === "text") {
         const lineUserId = event.source.userId;
         
-        // Find client by Line user ID
-        const client = await prisma.client.findFirst({
+        // Find or create client by Line user ID
+        let client = await prisma.client.findFirst({
           where: { lineUserId },
         });
 
-        if (client) {
-          // Store the message
-          await prisma.lineChat.create({
+        if (!client) {
+          client = await prisma.client.create({
             data: {
-              clientId: client.id,
-              message: event.message.text,
-              isFromClient: true,
+              lineUserId,
+              name: `Line User ${lineUserId.slice(-6)}`,
+              email: `${lineUserId}@line.user`,
+              phone: "",
+              address: "",
             },
           });
         }
+
+        // Store the message
+        await prisma.lineChat.create({
+          data: {
+            clientId: client.id,
+            message: event.message.text,
+            isFromClient: true,
+          },
+        });
       }
     }
 

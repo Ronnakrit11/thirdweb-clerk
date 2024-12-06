@@ -4,11 +4,22 @@ import prisma from "@/lib/db";
 
 export async function ChatList() {
   const chats = await prisma.lineChat.findMany({
+    where: {
+      client: {
+        lineUserId: {
+          not: null
+        }
+      }
+    },
     orderBy: {
       createdAt: "asc",
     },
     include: {
-      client: true,
+      client: {
+        select: {
+          lineUserId: true
+        }
+      }
     },
   });
 
@@ -20,7 +31,6 @@ export async function ChatList() {
             key={chat.id}
             message={chat.message}
             isFromClient={chat.isFromClient}
-            clientName={chat.client.name}
             timestamp={chat.createdAt}
           />
         ))}

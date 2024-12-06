@@ -5,11 +5,10 @@ import { cn } from "@/lib/utils";
 interface ChatMessageProps {
   message: string;
   isFromClient: boolean;
-  clientName: string;
   timestamp: Date;
 }
 
-export function ChatMessage({ message, isFromClient, clientName, timestamp }: ChatMessageProps) {
+export function ChatMessage({ message, isFromClient, timestamp }: ChatMessageProps) {
   return (
     <div className={cn(
       "flex w-full gap-2 p-4",
@@ -17,7 +16,7 @@ export function ChatMessage({ message, isFromClient, clientName, timestamp }: Ch
     )}>
       <Avatar className="h-8 w-8">
         <AvatarFallback>
-          {clientName.charAt(0).toUpperCase()}
+          {isFromClient ? "U" : "A"}
         </AvatarFallback>
       </Avatar>
       <div className={cn(

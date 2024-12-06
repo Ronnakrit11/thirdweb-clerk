@@ -20,7 +20,7 @@ export default async function DashboardLayout({
       <div className="hidden border-r bg-background md:block w-72">
         <div className="flex h-16 items-center gap-2 border-b px-6">
           <UserButton afterSignOutUrl="/" />
-          <span className="text-sm font-medium">ThenextCrm</span>
+          <span className="text-sm font-medium">ThenextCrm-V0</span>
         </div>
         <Sidebar />
       </div>

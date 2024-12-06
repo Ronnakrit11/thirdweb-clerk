@@ -1,32 +1,37 @@
 "use client";
 
 import { useState } from "react";
+import { ChatList } from "./chat-list";
 import { ChatInput } from "./chat-input";
-import { useRouter } from "next/navigation";
+import { useChat } from "../hooks/use-chat";
+import type { LineChat, Client } from "@prisma/client";
 
-export function ChatContainer() {
-  const router = useRouter();
-  
+interface ChatContainerProps {
+  initialChats: (LineChat & {
+    client: Pick<Client, "lineUserId" | "name">;
+  })[];
+}
+
+export function ChatContainer({ initialChats }: ChatContainerProps) {
+  const [chats, setChats] = useState(initialChats);
+  const { sendMessage, isLoading } = useChat();
+
   const handleSendMessage = async (message: string) => {
+    const currentClient = chats[0]?.client;
+    if (!currentClient?.lineUserId) return;
+
     try {
-      // TODO: Replace with actual clientId
-      const clientId = "example-client-id";
-      
-      await fetch("/api/line-chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message, clientId }),
-      });
-      
-      router.refresh();
-    } catch (error) {
-      console.error("Failed to send message:", error);
+      const newChat = await sendMessage(message, currentClient.lineUserId);
+      setChats([...chats, newChat]);
+    } catch {
+      // Error is already handled by useChat hook
     }
   };
 
   return (
-    <ChatInput onSendMessage={handleSendMessage} />
+    <div className="flex flex-col gap-4">
+      <ChatList chats={chats} />
+      <ChatInput onSendMessage={handleSendMessage} disabled={isLoading} />
+    </div>
   );
 }

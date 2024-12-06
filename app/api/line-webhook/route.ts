@@ -9,7 +9,8 @@ export async function POST(req: Request) {
     for (const event of events) {
       if (event.type === "message" && event.message.type === "text") {
         const lineUserId = event.source.userId;
-        
+        if (!lineUserId) continue;
+
         // Find or create client by Line user ID
         let client = await prisma.client.findFirst({
           where: { lineUserId },

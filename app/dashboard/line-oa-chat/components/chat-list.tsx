@@ -1,28 +1,16 @@
+"use client";
+
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChatMessage } from "./chat-message";
-import prisma from "@/lib/db";
+import type { LineChat, Client } from "@prisma/client";
 
-export async function ChatList() {
-  const chats = await prisma.lineChat.findMany({
-    where: {
-      client: {
-        lineUserId: {
-          not: null
-        }
-      }
-    },
-    orderBy: {
-      createdAt: "asc",
-    },
-    include: {
-      client: {
-        select: {
-          lineUserId: true
-        }
-      }
-    },
-  });
+interface ChatListProps {
+  chats: (LineChat & {
+    client: Pick<Client, "lineUserId" | "name">;
+  })[];
+}
 
+export function ChatList({ chats }: ChatListProps) {
   return (
     <ScrollArea className="h-[600px] rounded-md border">
       <div className="flex flex-col">

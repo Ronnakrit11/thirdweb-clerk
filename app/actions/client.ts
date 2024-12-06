@@ -32,8 +32,31 @@ export async function updateClient(
 }
 
 export async function deleteClient(id: string) {
-  await prisma.client.delete({
-    where: { id },
+  // First, find all quotations for this client
+  const quotations = await prisma.quotation.findMany({
+    where: { clientId: id },
+    select: { id: true },
   });
+
+  // Use a transaction to ensure all operations succeed or none do
+  await prisma.$transaction(async (tx) => {
+    // Delete all quotation services for each quotation
+    for (const quotation of quotations) {
+      await tx.quotationService.deleteMany({
+        where: { quotationId: quotation.id },
+      });
+    }
+
+    // Delete all quotations for this client
+    await tx.quotation.deleteMany({
+      where: { clientId: id },
+    });
+
+    // Finally, delete the client
+    await tx.client.delete({
+      where: { id },
+    });
+  });
+
   revalidatePath("/dashboard/clients");
 }

@@ -67,8 +67,18 @@ export async function updateQuotation(id: string, data: QuotationInput) {
 }
 
 export async function deleteQuotation(id: string) {
-  await prisma.quotation.delete({
-    where: { id },
+  // Use a transaction to ensure all operations succeed or none do
+  await prisma.$transaction(async (tx) => {
+    // First delete all associated quotation services
+    await tx.quotationService.deleteMany({
+      where: { quotationId: id },
+    });
+
+    // Then delete the quotation
+    await tx.quotation.delete({
+      where: { id },
+    });
   });
+  
   revalidatePath("/dashboard/quotations");
 }

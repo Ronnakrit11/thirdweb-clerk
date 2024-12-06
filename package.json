@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "webhook": "ngrok http 3000"
+    "webhook": "ngrok https 8080"
   },
   "dependencies": {
     "@clerk/nextjs": "^4.29.9",

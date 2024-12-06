@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { WebhookEvent } from "@line/bot-sdk";
 import { headers } from "next/headers";
-import crypto from "crypto";
+import { verifySignature } from "@/lib/line/verify-signature";
+import { handleMessage } from "@/lib/line/handle-message";
 
 export async function POST(req: Request) {
   try {
@@ -11,17 +12,8 @@ export async function POST(req: Request) {
     const signature = headersList.get("x-line-signature");
 
     // Verify webhook signature
-    if (!signature) {
-      return new NextResponse("Missing signature", { status: 401 });
-    }
-
-    const channelSecret = process.env.LINE_CHANNEL_SECRET!;
-    const hash = crypto
-      .createHmac("SHA256", channelSecret)
-      .update(body)
-      .digest("base64");
-
-    if (signature !== hash) {
+    if (!signature || !verifySignature(body, signature)) {
+      console.error("Invalid signature");
       return new NextResponse("Invalid signature", { status: 401 });
     }
 
@@ -29,45 +21,18 @@ export async function POST(req: Request) {
 
     // Process each event
     for (const event of events) {
-      if (event.type === "message" && event.message.type === "text") {
+      if (event.type === "message") {
         const lineUserId = event.source.userId;
         if (!lineUserId) continue;
 
-        // Find or create client by Line user ID
-        let client = await prisma.client.findFirst({
-          where: { lineUserId },
-        });
-
-        if (!client) {
-          client = await prisma.client.create({
-            data: {
-              lineUserId,
-              name: `LINE User ${lineUserId.slice(-6)}`,
-              email: `${lineUserId}@line.user`,
-              phone: "",
-              address: "",
-            },
-          });
-        }
-
-        // Store the message
-        await prisma.lineChat.create({
-          data: {
-            clientId: client.id,
-            message: event.message.text,
-            isFromClient: true,
-          },
-        });
+        await handleMessage(lineUserId, event.message);
       }
     }
 
-    return NextResponse.json({ message: "OK" });
+    return new NextResponse("OK", { status: 200 });
   } catch (error) {
     console.error("Error handling webhook:", error);
-    return NextResponse.json(
-      { error: "Failed to process webhook" },
-      { status: 500 }
-    );
+    return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
 

@@ -7,6 +7,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Menu } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { NavLinks } from "./nav-links";
+import { PricingDialog } from "./pricing-dialog";
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -15,8 +16,10 @@ export function Sidebar({ className }: SidebarProps) {
     <div className={cn("pb-12", className)}>
       <div className="space-y-4 py-4">
         <div className="px-3 py-2">
-          <h2 className="mb-2 px-4 text-lg font-semibold"></h2>
-          <NavLinks />
+          <PricingDialog />
+          <div className="mt-4">
+            <NavLinks />
+          </div>
         </div>
       </div>
     </div>

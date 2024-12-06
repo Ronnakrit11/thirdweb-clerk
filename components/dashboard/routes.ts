@@ -20,6 +20,10 @@ export const dashboardRoutes = [
     label: "Invoices",
   },
   {
+    href: "/dashboard/line-oa-chat",
+    label: "Line OA Chat",
+  },
+  {
     href: "/dashboard/aifeatures",
     label: "Ai-features",
   },

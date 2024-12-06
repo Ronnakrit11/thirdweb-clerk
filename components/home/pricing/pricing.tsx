@@ -23,7 +23,7 @@ export function Pricing() {
     {
       title: "Growth",
       description: "Ideal for scalable production-grade applications.",
-      price: "$0",
+      price: "$20",
       originalPrice: "$99",
       features: [
         { icon: Users, text: "10,000 monthly active wallets" },
@@ -38,7 +38,7 @@ export function Pricing() {
     },
     {
       title: "Pro",
-      description: "Ideal for teams that require more customization, SLAs, and support.",
+      description: "Ideal for teams that require more customization, SLAs",
       price: "Custom",
       features: [
         { icon: Boxes, text: "Custom rate limits for APIs & Infra" },
